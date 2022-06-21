@@ -49,14 +49,14 @@ app.post("/users", (req, res) => {
       .json({ error: "Username has already been taken by another user." });
   }
 
-  users.push({
+  const createdUser = {
     id: uuidv4(),
     name,
     username,
     todos: [],
-  });
+  };
+  users.push(createdUser);
 
-  const createdUser = users[users.length - 1];
   return res.status(201).json(createdUser);
 });
 
@@ -72,15 +72,16 @@ app.post("/todos", checkIfUserExists, (req, res) => {
   const { user } = req;
   const { title, deadline } = req.body;
 
-  user.todos.push({
+  const addedTodo = {
     id: uuidv4(),
     title,
     done: false,
     deadline: new Date(deadline),
     created_at: new Date(),
-  });
-  const createdTodo = user.todos[user.todos.length - 1];
-  return res.status(201).json(createdTodo);
+  };
+
+  user.todos.push(addedTodo);
+  return res.status(201).json(addedTodo);
 });
 
 // atualizar um todo
@@ -91,9 +92,7 @@ app.put("/todos/:id", checkIfUserExists, findTodoByID, (req, res) => {
   updateTodo.title = title;
   updateTodo.deadline = new Date(deadline);
 
-  const i = user.todos.indexOf(updateTodo);
-  return res.status(200).json(user.todos[i]);
-  return res.status(200).send();
+  return res.status(200).json(updateTodo);
 });
 
 // marcar todo como feito/concluído
@@ -101,8 +100,7 @@ app.patch("/todos/:id/done", checkIfUserExists, findTodoByID, (req, res) => {
   const { updateTodo, user } = req;
 
   updateTodo.done = true;
-  const i = user.todos.indexOf(updateTodo);
-  return res.status(200).json(user.todos[i]);
+  return res.status(200).json(updateTodo);
 });
 
 // deletar todo
